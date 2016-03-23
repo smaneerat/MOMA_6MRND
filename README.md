@@ -8,3 +8,5 @@ Simulation plan: The locations for a first generation of Aedes have been distrib
 
 * To lauch the model, import all the repository or open a file ".project" in Gama 1.6.1
 
+[![DOI](https://zenodo.org/badge/20522/smaneerat/MOMA_6MRND.svg)](https://zenodo.org/badge/latestdoi/20522/smaneerat/MOMA_6MRND)
+
