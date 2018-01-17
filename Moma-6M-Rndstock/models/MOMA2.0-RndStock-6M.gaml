@@ -1,30 +1,32 @@
-/**
- *  MOMA2.0-6MRND - test random stokck
+ /**
+ *  -------------
+ *  MOMA 2.0-6MRND - test random stokck
  *  previous name: SEASON4.6
  *  Author: MANEERAT Somsakun
  *  Description: 22/04/2015
  * --------------------------------------------------------------
- * Test evolution de stock dans les 7 scenario (arrête à une génération)
+ * Test evolution of stock in  7 scenario (stop at the end of 1st generation)
  * ---------------------------------------------------------------
- *  Cette version se base sur la version. 4.5 optimisée
- *  - R3-checkCurrentAct a été changé
- *  - Mettre mySpatObj.geom_limit dans  SpatObj à l’initialisation
- *  - USE FUZZY STD
- *  - Correction: calcule de tempWater : utiliser airTempmin pour calculé airWaterMax comme dans Fock,1933
- *  - implementation de l'équation qui fait varier le sun expo!
- *  - modification le calcul de nb BS ( enlever +0.5) et ajouter rnd(densAvg)
- *  - change valeur de paramètre AVGEGG_SURFACE à AVGEEG_BS = 50oeufs/bs
- *  - modif actifRate function
- *  - modif C2 = 2 Wdmax = 70C2
- *  ----------------------------------------------------------
- *  - basat sur OPT 2 => modify save new aquatics stock! save to string in stead of writing directly to files
- *  - ADD in R3: checkCurrentAct = if(age < 1 or 2 days after born, stay reste) else decideBestAct
- *  -----------------------------------------------------------
- *  - Use updateStock but no instantiate a new agent Aedes
- *  - modif the cal bs with water for bdAvgMode
+ *   MOMA (Model Of Mosquito Aedes aegypti), an agent-based model of Aedes aegypti female mosquitoes,
+ *   provides spatially explicit information on mosquito behaviour and aims to lead new research questions and target actions against dengue mosquitoes.
+ *   
+ *   This version provides an update from the previous version in order to support the larger simulation zone and stock evoluation.
+ *   In favor of simulation time reducing, the mosquitoes' stocks have been changed, but not used to generate a new generation of Ades agents.
+ *   If need, you can initiate a new agent at the method "updateStocksAedes" in agent "SpatObj".
+ * 
+ *   For this exemple, the experiment is designed to evaluate  mosquitoes's dispersal and stock evoluation for ONE generation!
+ *   The experimentation zone has been enlarged to 4 connecting neigborhoods named "MHKS" in Delhi. The first stocks are distributed randomly in the study area.
+ *   to test the effect of discontinuity of geographical to mosquito dispesal and proliferation. 
+ *
+ *   Some parameters and fuctions for environment has been improved (Ex: water temperature calculation, water filling rate, number of eggs per surface, sun exposure).
+ *   --------------------------
+ *   This model is a thesis project developped in the framwork of French national program ANR AEDESS (http://anr-aedess.fr) 
+ *   and European program FP7 DENFREE (http://www.denfree.eu/)
+ *
+ *   For further information about the terms of re-use please contact the author
  */
 
-model SEASON46_RNDSTOCK
+model MOMA2_RNDSTOCK
 global
 {
 	/*xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -236,10 +238,8 @@ global
 	
 	/////////// LAND USE //////////////
 	float MAX_WORLDTEMPC <- 50.0;
-	float AVG_EGG_BSSURFACE <- 300.0; //max 750eggs/container avg size (Iquito) Wong J, Stoddard ST, Astete H, Morrison AC, et al. (2011) Oviposition Site Selection by the Dengue Vector Aedes aegypti and Its Implications for Dengue Control. PLoS Negl Trop Dis 5(4): e1015. doi:10.1371/journal.pntd.0001015; http://www.plosntd.org/article/info:doi/10.1371/journal.pntd.0001015
-	//AVG_EGG par m² a verifier la valeur car c'est a peu pres 70eggs par m2 (la valeur sortir de modèle) entre le mois may et oct dans Hopp, M.J and Foley J.A ( Global-scale relationships between climate and the dengue fever vector, aedes aegypti
-	
-	float MIN_TEMP_USECOOLER <- 20.0;//A CHANGER
+	float AVG_EGG_BSSURFACE <- 50.0; //	adapted from Wong et al., 2011
+	float MIN_TEMP_USECOOLER <- 30.0;
 	
 	
 	/**********************************************************
@@ -472,7 +472,12 @@ global
 			 }
 		}
 	}
-
+	
+	reflex updateWeather when: bNewDay
+	{
+		fGlobalTodayAirTempC <- (list_daily_max_temp[nb_days] + list_daily_min_temp[nb_days])/2;
+		fGlobalTodayRainfall <- list_daily_rain[nb_days];
+	} 
 		
 	action createSpatObj
 	{
